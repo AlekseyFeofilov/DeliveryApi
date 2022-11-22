@@ -7,16 +7,16 @@ namespace DeliveryAppAPI.Models.Dto;
 public class OrderInfoDto
 {
     [JsonPropertyName("id")]
-    public Guid Id;
+    public Guid Id { get; set; }
     [JsonPropertyName("deliveryTime")]
-    public DateTime DeliveryTime;
+    public DateTime DeliveryTime { get; set; }
     [JsonPropertyName("orderTime")]
-    public DateTime OrderTime;
+    public DateTime OrderTime { get; set; }
     [JsonPropertyName("status")]
-    public OrderStatus Status;
+    public OrderStatus Status { get; set; }
     [JsonPropertyName("price")]
     [Range(0, double.MaxValue)]
-    public double Price;
+    public double Price { get; set; }
 
     public OrderInfoDto(Guid id, DateTime deliveryTime, DateTime orderTime, OrderStatus status, double price)
     {

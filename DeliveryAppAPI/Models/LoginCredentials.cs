@@ -8,10 +8,10 @@ public class LoginCredentials
     [JsonPropertyName("email")]
     [EmailAddress]
     [MinLength(1)]
-    public string Email;
+    public string Email { get; set; }
     [JsonPropertyName("password")]
     [MinLength(1)]
-    public string Password;
+    public string Password { get; set; }
 
     public LoginCredentials(string email, string password)
     {
