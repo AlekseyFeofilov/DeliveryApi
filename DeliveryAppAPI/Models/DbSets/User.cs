@@ -5,27 +5,16 @@ namespace DeliveryAppAPI.Models.DbSets;
 
 public class User
 {
-    [Key]
-    public Guid Id;
+    public Guid Id { get; set; }
     [MinLength(1)]
-    public string FullName;
-    public DateTime? BirthDate;
-    public Gender Gender;
-    public string? Address;
+    public string FullName { get; set; }
+    public DateTime? BirthDate { get; set; }
+    public Gender Gender { get; set; }
+    public string? Address { get; set; }
     [EmailAddress]
     [Required]
-    public string Email;
+    public string Email { get; set; }
     [Phone]
-    public string? PhoneNumber;
-
-    public User(Guid id, string fullName, DateTime? birthDate, Gender gender, string? address, string email, string? phoneNumber)
-    {
-        Id = id;
-        FullName = fullName;
-        BirthDate = birthDate;
-        Gender = gender;
-        Address = address;
-        Email = email;
-        PhoneNumber = phoneNumber;
-    }
+    public string? PhoneNumber { get; set; }
+    public ICollection<Order> Orders { get; set; }
 }

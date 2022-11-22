@@ -5,29 +5,16 @@ namespace DeliveryAppAPI.Models.DbSets;
 
 public class Dish
 {
-    [Key]
-    public Guid Id;
+    public Guid Id { get; set; }
     [MinLength(1)]
-    public string Name;
-    public string? Description;
+    public string Name { get; set; }
+    public string? Description { get; set; }
     [Range(0, double.MaxValue)]
-    public double Price;
+    public double Price { get; set; }
     [Url]
-    public string? Image;
-    public bool Vegetarian;
+    public string? Image { get; set; }
+    public bool Vegetarian { get; set; }
     [Range(0, 10)]
-    public double? Rating;
-    public DishCategory Category;
-
-    public Dish(Guid id, string name, string? description, double price, string? image, bool vegetarian, double? rating, DishCategory category)
-    {
-        Id = id;
-        Name = name;
-        Description = description;
-        Price = price;
-        Image = image;
-        Vegetarian = vegetarian;
-        Rating = rating;
-        Category = category;
-    }
+    public double? Rating { get; set; }
+    public DishCategory Category { get; set; }
 }
