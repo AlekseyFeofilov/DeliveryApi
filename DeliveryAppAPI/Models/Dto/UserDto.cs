@@ -7,22 +7,22 @@ namespace DeliveryAppAPI.Models.Dto;
 public class UserDto
 {
     [JsonPropertyName("id")]
-    public Guid Id;
+    public Guid Id { get; set; }
     [MinLength(1)]
     [JsonPropertyName("fullName")]
-    public string FullName;
+    public string FullName { get; set; }
     [JsonPropertyName("birthDate")]
-    public DateTime? BirthDate;
+    public DateTime? BirthDate { get; set; }
     [JsonPropertyName("gender")]
-    public Gender Gender;
+    public Gender Gender { get; set; }
     [JsonPropertyName("address")]
-    public string? Address;
+    public string? Address { get; set; }
     [EmailAddress]
     [JsonPropertyName("email")]
-    public string Email;
+    public string Email { get; set; }
     [Phone]
     [JsonPropertyName("phoneNumber")]
-    public string? PhoneNumber;
+    public string? PhoneNumber { get; set; }
 
     public UserDto(Guid id, string fullName, DateTime? birthDate, Gender gender, string? address, string email, string phoneNumber)
     {

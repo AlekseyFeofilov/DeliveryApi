@@ -5,9 +5,9 @@ namespace DeliveryAppAPI.Models.Dto;
 public class DishPagedListDto
 {
     [JsonPropertyName("dishes")]
-    public DishDto[]? Dishes;
+    public DishDto[]? Dishes { get; set; }
     [JsonPropertyName("pagination")]
-    public PageInfoModel Pagination;
+    public PageInfoModel Pagination { get; set; }
 
     public DishPagedListDto(DishDto[]? dishes, PageInfoModel pagination)
     {

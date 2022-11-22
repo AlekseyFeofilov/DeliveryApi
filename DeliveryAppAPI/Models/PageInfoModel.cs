@@ -5,11 +5,11 @@ namespace DeliveryAppAPI.Models;
 public class PageInfoModel
 {
     [JsonPropertyName("size")]
-    public int Size;
+    public int Size { get; set; }
     [JsonPropertyName("count")]
-    public int Count;
+    public int Count { get; set; }
     [JsonPropertyName("current")]
-    public int Current;
+    public int Current { get; set; }
 
     public PageInfoModel(int size, int count, int current)
     {
