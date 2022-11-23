@@ -5,5 +5,5 @@ namespace DeliveryAppAPI.Services.DishServices;
 
 public interface IDishService
 {
-    Task<IEnumerable<DishDto>> GetAllDishes(DishCategory? categories, DishSorting? sorting, int? page, bool vegetarian);
+    Task<DishPagedListDto> GetAllDishes(DishCategory? categories, DishSorting? sorting, int? page, bool vegetarian);
 }

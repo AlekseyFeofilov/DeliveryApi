@@ -1,4 +1,5 @@
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Models;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
@@ -17,7 +18,7 @@ public class DishServices : IDishService
         _context = context;
     }
 
-    public async Task<IEnumerable<DishDto>> GetAllDishes(DishCategory? categories, DishSorting? sorting, int? page,
+    public async Task<DishPagedListDto> GetAllDishes(DishCategory? categories, DishSorting? sorting, int? page,
         bool vegetarian = false)
     {
         var dishes = _context.Dishes.AsQueryable();
@@ -27,14 +28,14 @@ public class DishServices : IDishService
             dishes = dishes.Where(x => x.Vegetarian);
         }
 
-        if (categories.HasValue) 
+        if (categories.HasValue)
         {
             dishes = dishes.Where(x => x.Category == categories);
         }
 
         dishes = Sort(sorting, dishes);
 
-        return await dishes
+        var dishesList = await dishes
             .Skip((page ?? 1 - 1) * PageSize)
             .Take(PageSize)
             .Select(x => new DishDto(
@@ -48,6 +49,11 @@ public class DishServices : IDishService
                 x.Category
             ))
             .ToListAsync();
+
+        return new DishPagedListDto(
+            dishesList,
+            new PageInfoModel(PageSize, (int)Math.Ceiling(dishes.Count() * 1.0 / PageSize), page ?? 1)
+        );
     }
 
     private IQueryable<Dish> Sort(DishSorting? sorting, IQueryable<Dish> dishes)

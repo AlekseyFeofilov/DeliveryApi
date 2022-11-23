@@ -18,7 +18,7 @@ public class DishController : ControllerBase
 
     [HttpGet]
     [Route("/api/dish")]
-    public async Task<IEnumerable<DishDto>> Get(DishCategory? categories, DishSorting? sorting, int? page, bool vegetarian)
+    public async Task<DishPagedListDto> Get(DishCategory? categories, DishSorting? sorting, int? page, bool vegetarian)
     {
         return await _dishService.GetAllDishes(categories, sorting, page, vegetarian);
     }
