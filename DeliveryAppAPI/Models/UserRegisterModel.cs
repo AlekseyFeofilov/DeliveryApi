@@ -16,9 +16,9 @@ public class UserRegisterModel
     [JsonPropertyName("address")]
     public string? Address { get; set; }
     [EmailAddress]
-    [MinLength(1)]
+    [Required]
     [JsonPropertyName("email")]
-    public string? Email { get; set; }
+    public string Email { get; set; }
     [Phone]
     [JsonPropertyName("phoneNumber")]
     public string? PhoneNumber { get; set; }
@@ -26,7 +26,7 @@ public class UserRegisterModel
     [JsonPropertyName("password")]
     public string Password { get; set; }
 
-    public UserRegisterModel(string fullName, DateTime? birthDate, Gender gender, string? address, string? email, string? phoneNumber, string password)
+    public UserRegisterModel(string fullName, DateTime? birthDate, Gender gender, string? address, string email, string? phoneNumber, string password)
     {
         FullName = fullName;
         BirthDate = birthDate;
