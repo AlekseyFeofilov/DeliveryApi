@@ -14,6 +14,8 @@ public class User
     [EmailAddress]
     [Required]
     public string Email { get; set; }
+    [MinLength(6)]
+    public string Password { get; set; }
     [Phone]
     public string? PhoneNumber { get; set; }
     public ICollection<Order> Orders { get; set; }
