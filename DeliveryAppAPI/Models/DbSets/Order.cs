@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
 
 namespace DeliveryAppAPI.Models.DbSets;

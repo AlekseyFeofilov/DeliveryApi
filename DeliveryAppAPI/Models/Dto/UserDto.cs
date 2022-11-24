@@ -24,7 +24,7 @@ public class UserDto
     [JsonPropertyName("phoneNumber")]
     public string? PhoneNumber { get; set; }
 
-    public UserDto(Guid id, string fullName, DateTime? birthDate, Gender gender, string? address, string email, string phoneNumber)
+    public UserDto(Guid id, string fullName, DateTime? birthDate, Gender gender, string? address, string email, string? phoneNumber)
     {
         Id = id;
         FullName = fullName;
