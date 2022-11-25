@@ -14,7 +14,6 @@ public class Dish
     [Url]
     public string? Image { get; set; }
     public bool Vegetarian { get; set; }
-    [Range(0, 10)]
-    public double? Rating { get; set; }
+    public ICollection<Review> Reviews { get; set; }
     public DishCategory Category { get; set; }
 }
