@@ -18,8 +18,22 @@ public class DishController : ControllerBase
 
     [HttpGet]
     [Route("/api/dish")]
-    public async Task<DishPagedListDto> Get(DishCategory? categories, DishSorting? sorting, int? page, bool vegetarian)
+    public async Task<IActionResult> Get(DishCategory? categories, DishSorting? sorting, int? page, bool vegetarian)
     {
-        return await _dishService.GetAllDishes(categories, sorting, page, vegetarian);
+        return Ok(await _dishService.GetAllDishes(categories, sorting, page, vegetarian));
+    }
+
+    [HttpGet]
+    [Route("/api/dish/{id:guid}")]
+    public async Task<IActionResult> Get(Guid id)
+    {
+        var dish = await _dishService.GetDish(id);
+
+        if (dish == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(dish);
     }
 }
