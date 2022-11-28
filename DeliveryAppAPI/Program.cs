@@ -1,5 +1,7 @@
 using DeliveryAppAPI;
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Services.JwtService;
+using DeliveryAppAPI.Services.OrderService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +14,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IJwtClaimService, JwtService>();
 
 //JWT
 builder.Services.AddAuthorization();
@@ -33,6 +37,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //DbContext 
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connection));
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); //todo solve more smart
 
 var app = builder.Build();
 
