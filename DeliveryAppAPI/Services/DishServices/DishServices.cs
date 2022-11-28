@@ -42,14 +42,49 @@ public class DishServices : IDishService
             dish.Reviews.Average(r => r.Rating), dish.Category);
     }
 
-    public Task<bool> CheckReviewAccess(Guid dishId, Guid userId)
+    public async Task<bool> CheckReviewAccess(Guid dishId, Guid userId)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users
+            .Include(x => x.Orders)
+            .ThenInclude(x => x.DishBaskets)
+            .ThenInclude(x => x.Dish)
+            .SingleOrDefaultAsync(x => x.Id == userId);
+
+        if (user == null) return false;
+
+        return user.Orders.Any(order => order.DishBaskets
+            .Any(dishBasket => dishBasket.Dish.Id == dishId));
     }
 
-    public Task<bool> SetReview(Guid dishId, Guid userId, int rating)
+    public async Task<bool> SetReview(Guid dishId, Guid userId, int rating)
     {
-        throw new NotImplementedException();
+        if (!await CheckReviewAccess(dishId, userId)) return false;
+
+        var dish = await _context.Dishes.SingleOrDefaultAsync(x => x.Id == dishId);
+        var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == userId);
+
+        if (dish == null || user == null) return false;
+
+        var review = await _context.Reviews
+            .SingleOrDefaultAsync(x => x.User != null && x.Dish.Id == dishId && x.User.Id == userId);
+
+        if (review != null)
+        {
+            review.Rating = rating;
+        }
+        else
+        {
+            await _context.Reviews.AddAsync(new Review
+            {
+                Id = Guid.NewGuid(),
+                Dish = dish,
+                User = user,
+                Rating = rating
+            });
+        }
+
+        await _context.SaveChangesAsync();
+        return true;
     }
 
 

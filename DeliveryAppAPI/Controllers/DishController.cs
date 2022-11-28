@@ -2,6 +2,7 @@ using System.Diagnostics;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
 using DeliveryAppAPI.Services.DishServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeliveryAppAPI.Controllers;
@@ -35,5 +36,29 @@ public class DishController : ControllerBase
         }
 
         return Ok(dish);
+    }
+
+    [HttpGet]
+    //[Authorize]
+    [Route("/api/dish/{id:guid}/rating/check")]
+    public async Task<IActionResult> CheckReviewAccess(Guid id)
+    {
+        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
+        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+
+        return Ok(await _dishService.CheckReviewAccess(id, userId));
+    }
+
+    [HttpPost]
+    //[Authorize]
+    [Route("/api/dish/{id:guid}/rating")]
+    public async Task<IActionResult> SetReview(Guid id, int rating)
+    {
+        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
+        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+
+        if (!await _dishService.SetReview(id, userId, rating)) return BadRequest();
+
+        return Ok();
     }
 }
