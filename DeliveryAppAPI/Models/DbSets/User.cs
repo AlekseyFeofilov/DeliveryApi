@@ -19,5 +19,6 @@ public class User
     [Phone]
     public string? PhoneNumber { get; set; }
     public ICollection<Order> Orders { get; set; }
+    public ICollection<DishBasket> Cart { get; set; }
     public ICollection<Review> Reviews { get; set; }
 }

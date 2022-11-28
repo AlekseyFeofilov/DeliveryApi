@@ -8,8 +8,6 @@ public class DishBasket
     [MinLength(1)]
     [Range(0, int.MaxValue)]
     public int Amount { get; set; }
-    public string? Image { get; set; }
-    public Order Order { get; set; }
-    public Guid DishId { get; set; }
+    public User User { get; set; }
     public Dish Dish { get; set; }
 }
