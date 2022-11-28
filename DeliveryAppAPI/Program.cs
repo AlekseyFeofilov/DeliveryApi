@@ -1,8 +1,9 @@
 using DeliveryAppAPI;
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Services.BasketService;
 using DeliveryAppAPI.Services.DishServices;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using DeliveryAppAPI.Services.JwtService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using DeliveryAppAPI.Services.UserService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,8 +17,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDishService, DishServices>();
+builder.Services.AddScoped<IJwtClaimService, JwtService>();
 
 //JWT
 builder.Services.AddAuthorization();
