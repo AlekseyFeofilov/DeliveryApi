@@ -2,12 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using DeliveryAppAPI.DbContexts;
 using DeliveryAppAPI.Models;
+using DeliveryAppAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace DeliveryAppAPI.Services.JwtService;
 
-public class JwtService : IJwtService
+public class JwtService : IJwtService, IJwtClaimService
 {
     private readonly ApplicationDbContext _context;
 
@@ -46,7 +47,8 @@ public class JwtService : IJwtService
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Email, user.Email)
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString())
         };
 
         var claimsIdentity =
