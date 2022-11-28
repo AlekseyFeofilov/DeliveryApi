@@ -1,5 +1,6 @@
 using DeliveryAppAPI;
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Services.DishServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IDishService, DishServices>();
 
 //JWT
 builder.Services.AddAuthorization();
