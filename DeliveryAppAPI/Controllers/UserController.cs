@@ -13,11 +13,13 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IJwtService _jwtService;
+    private readonly IJwtClaimService _jwtClaimService;
 
-    public UserController(IUserService userService, IJwtService jwtService)
+    public UserController(IUserService userService, IJwtService jwtService, IJwtClaimService jwtClaimService)
     {
         _userService = userService;
         _jwtService = jwtService;
+        _jwtClaimService = jwtClaimService;
     }
 
     [HttpPost]
@@ -53,7 +55,7 @@ public class UserController : ControllerBase
     [Route("/api/account/profile")]
     public async Task<IActionResult> GetProfileInfo()
     {
-        var email = _jwtService.GetClaimValue(ClaimTypes.Email, Request);
+        var email = _jwtClaimService.GetClaimValue(ClaimTypes.Email, Request);
         var user = await _userService.GetProfileInfo(email);
 
         if (user == null)
@@ -69,7 +71,7 @@ public class UserController : ControllerBase
     [Route("/api/account/profile")]
     public async Task<IActionResult> EditProfileInfo(UserEditModel model)
     {
-        var email = _jwtService.GetClaimValue(ClaimTypes.Email, Request);
+        var email = _jwtClaimService.GetClaimValue(ClaimTypes.Email, Request);
 
         if (!await _userService.EditProfileInfo(model, email))
         {
