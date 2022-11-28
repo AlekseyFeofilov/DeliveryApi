@@ -18,11 +18,11 @@ public class OrderDto
     [Range(0, double.MaxValue)]
     public double Price { get; set; }
     [JsonPropertyName("dishes")]
-    public DishBasketDto[] Dishes { get; set; }
+    public IEnumerable<DishBasketDto> Dishes { get; set; }
     [JsonPropertyName("address")]
     public string Address { get; set; }
 
-    public OrderDto(Guid id, DateTime deliveryTime, DateTime orderTime, OrderStatus status, double price, DishBasketDto[] dishes, string address)
+    public OrderDto(Guid id, DateTime deliveryTime, DateTime orderTime, OrderStatus status, double price, IEnumerable<DishBasketDto> dishes, string address)
     {
         Id = id;
         DeliveryTime = deliveryTime;
