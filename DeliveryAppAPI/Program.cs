@@ -1,6 +1,7 @@
 using System.Reflection;
 using DeliveryAppAPI;
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Middlewares;
 using DeliveryAppAPI.Services.BasketService;
 using DeliveryAppAPI.Services.DishServices;
 using DeliveryAppAPI.Services.JwtService;
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDishService, DishServices>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddTransient<InternalServerErrorHandlingMiddleware>();
 
 //JWT
 builder.Services.AddAuthorization();
@@ -64,6 +66,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); //todo solve more smart
 
 var app = builder.Build();
+
+app.UseMiddleware<InternalServerErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
