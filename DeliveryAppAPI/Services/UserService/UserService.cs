@@ -15,60 +15,41 @@ public class UserService : IUserService
         _context = context;
     }
 
-    public async Task<bool> Register(UserRegisterModel model)
+    public void Register(UserRegisterModel model)
     {
-        try
+        _context.Users.Add(new User
         {
-            await _context.Users.AddAsync(new User
-            {
-                FullName = model.FullName,
-                BirthDate = model.BirthDate,
-                Gender = model.Gender,
-                Address = model.Address,
-                Email = model.Email,
-                Password = model.Password,
-                PhoneNumber = model.PhoneNumber
-            });
+            FullName = model.FullName,
+            BirthDate = model.BirthDate,
+            Gender = model.Gender,
+            Address = model.Address,
+            Email = model.Email,
+            Password = model.Password,
+            PhoneNumber = model.PhoneNumber
+        });
 
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        catch (Exception e)
-        {
-            Console.Error.WriteLine(e);
-            return false;
-        }
+        _context.SaveChanges();
     }
 
-    public async Task<UserDto?> GetProfileInfo(string email)
+    public UserDto GetProfileInfo(User user)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
-
-        if (user == null)
-        {
-            return null;
-        }
-
         return new UserDto(user.Id, user.FullName, user.BirthDate, user.Gender, user.Address, user.Email,
             user.PhoneNumber);
     }
 
-    public async Task<bool> EditProfileInfo(UserEditModel model, string email)
+    public void EditProfileInfo(UserEditModel model, User user)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
-
-        if (user == null)
-        {
-            return false;
-        }
-        
         user.Address = model.Address;
         user.Gender = model.Gender;
         user.BirthDate = model.BirthDate;
         user.FullName = model.FullName;
         user.PhoneNumber = model.PhoneNumber;
 
-        await _context.SaveChangesAsync();
-        return true;
+        _context.SaveChanges();
+    }
+
+    public async Task<User?> GetUser(string email)
+    {
+        return await _context.Users.SingleOrDefaultAsync(x => x.Email == email);
     }
 }
