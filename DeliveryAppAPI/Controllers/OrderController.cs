@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Response;
@@ -25,15 +24,11 @@ public class OrderController : ControllerBase
     /// <summary>
     /// Get information about concrete order
     /// </summary>
-    /// <remarks>**Need Authorization**</remarks>
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
-    /// <response code="403">Forbidden</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet]
-    [Authorize]
-    [Route("api/order/{id:guid}")]
+    [HttpGet, Authorize, Route("api/order/{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -49,15 +44,11 @@ public class OrderController : ControllerBase
     /// <summary>
     /// Get a list of orders
     /// </summary>
-    /// <remarks>**Need Authorization**</remarks>
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
-    /// <response code="403">Forbidden</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet]
-    [Authorize]
-    [Route("api/order")]
+    [HttpGet, Authorize, Route("api/order")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<OrderInfoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -74,15 +65,11 @@ public class OrderController : ControllerBase
     /// <summary>
     /// Creating the order from dishes in basket
     /// </summary>
-    /// <remarks>**Need Authorization**</remarks>
     /// <response code="200">Success</response>
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
-    /// <response code="403">Forbidden</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost]
-    [Authorize]
-    [Route("api/order")]
+    [HttpPost, Authorize, Route("api/order")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
@@ -96,16 +83,12 @@ public class OrderController : ControllerBase
     /// <summary>
     /// Confirm order delivery
     /// </summary>
-    /// <remarks>**Need Authorization**</remarks>
     /// <response code="200">Success</response>
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
-    /// <response code="403">Forbidden</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost]
-    [Authorize]
-    [Route("api/order/{id:guid}/status")]
+    [HttpPost, Authorize, Route("api/order/{id:guid}/status")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ConfirmOrderDelivery(Guid id)

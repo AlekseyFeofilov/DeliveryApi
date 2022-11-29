@@ -1,11 +1,13 @@
 using DeliveryAppAPI.Models;
+using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
 
 namespace DeliveryAppAPI.Services.UserService;
 
 public interface IUserService
 {
-    Task<bool> Register(UserRegisterModel model);
-    Task<UserDto?> GetProfileInfo(string email);
-    Task<bool> EditProfileInfo(UserEditModel model, string email);
+    void Register(UserRegisterModel model);
+    UserDto GetProfileInfo(User user);
+    void EditProfileInfo(UserEditModel model, User user);
+    Task<User?> GetUser(string email);
 }

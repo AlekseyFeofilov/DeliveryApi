@@ -4,10 +4,8 @@ namespace DeliveryAppAPI.Models.Dto;
 
 public class DishPagedListDto
 {
-    [JsonPropertyName("dishes")]
-    public IEnumerable<DishDto> Dishes { get; set; }
-    [JsonPropertyName("pagination")]
-    public PageInfoModel Pagination { get; set; }
+    [JsonPropertyName("dishes")] public IEnumerable<DishDto> Dishes { get; }
+    [JsonPropertyName("pagination")] public PageInfoModel Pagination { get; }
 
     public DishPagedListDto(IEnumerable<DishDto> dishes, PageInfoModel pagination)
     {

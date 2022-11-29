@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using DeliveryAppAPI.DbContexts;
 using DeliveryAppAPI.Models;
-using DeliveryAppAPI.Models.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 

@@ -9,11 +9,11 @@ public class LoginCredentials
     [Required]
     [EmailAddress]
     [MinLength(1)]
-    public string Email { get; set; }
+    public string Email { get; }
     [JsonPropertyName("password")]
     [Required]
     [MinLength(1)]
-    public string Password { get; set; }
+    public string Password { get; }
 
     public LoginCredentials(string email, string password)
     {

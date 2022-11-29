@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Security.Claims;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
@@ -28,8 +27,7 @@ public class DishController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="400">Bad Request</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet]
-    [Route("/api/dish")]
+    [HttpGet, Route("/api/dish")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(DishPagedListDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -45,8 +43,7 @@ public class DishController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet]
-    [Route("/api/dish/{id:guid}")]
+    [HttpGet, Route("/api/dish/{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(DishDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -65,15 +62,11 @@ public class DishController : ControllerBase
     /// <summary>
     /// Checks if user is able to set rating of the dish
     /// </summary>
-    /// <remarks>**Need Authorization**</remarks>
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
-    /// <response code="403">Forbidden</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet]
-    [Authorize]
-    [Route("/api/dish/{id:guid}/rating/check")]
+    [HttpGet, Authorize, Route("/api/dish/{id:guid}/rating/check")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -87,16 +80,13 @@ public class DishController : ControllerBase
     /// <summary>
     /// Set a rating for a dish
     /// </summary>
-    /// <remarks>**Need Authorization**</remarks>
     /// <response code="200">Success</response>
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost]
-    [Authorize]
-    [Route("/api/dish/{id:guid}/rating")]
+    [HttpPost, Authorize, Route("/api/dish/{id:guid}/rating")]
     [Produces("application/json")] //todo: in swagger documentation there is media type
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SetReview(Guid id, int ratingScore)

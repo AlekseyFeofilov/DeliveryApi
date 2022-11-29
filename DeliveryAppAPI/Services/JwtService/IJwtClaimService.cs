@@ -1,5 +1,3 @@
-using DeliveryAppAPI.Models.Dto;
-
 namespace DeliveryAppAPI.Services.JwtService;
 
 public interface IJwtClaimService

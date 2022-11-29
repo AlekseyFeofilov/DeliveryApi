@@ -5,7 +5,7 @@ namespace DeliveryAppAPI.Models.Response;
 public class TokenResponse
 {
     [JsonPropertyName("token")]
-    public string Token { get; set; }
+    public string Token { get; }
 
     public TokenResponse(string token)
     {

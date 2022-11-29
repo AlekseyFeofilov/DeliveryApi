@@ -9,25 +9,25 @@ public class UserRegisterModel
     [MinLength(1)]
     [Required]
     [JsonPropertyName("fullName")]
-    public string FullName { get; set; }
+    public string FullName { get; }
     [MinLength(6)]
     [Required]
     [JsonPropertyName("password")]
-    public string Password { get; set; }
+    public string Password { get; }
     [EmailAddress]
     [Required]
     [JsonPropertyName("email")]
-    public string Email { get; set; }
+    public string Email { get; }
     [JsonPropertyName("address")]
-    public string? Address { get; set; }
+    public string? Address { get; }
     [JsonPropertyName("birthDate")]
-    public DateTime? BirthDate { get; set; }  //todo date validation (for all project too)
+    public DateTime? BirthDate { get; }  //todo date validation (for all project too)
     [JsonPropertyName("gender")]
     [Required]
-    public Gender Gender { get; set; }
+    public Gender Gender { get; }
     [Phone]
     [JsonPropertyName("phoneNumber")]
-    public string? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; }
 
     public UserRegisterModel(string fullName, DateTime? birthDate, Gender gender, string? address, string email, string? phoneNumber, string password)
     {
