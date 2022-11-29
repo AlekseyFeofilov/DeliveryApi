@@ -1,3 +1,4 @@
+using System.Reflection;
 using DeliveryAppAPI;
 using DeliveryAppAPI.DbContexts;
 using DeliveryAppAPI.Services.BasketService;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using DeliveryAppAPI.Services.UserService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +18,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    options.OperationFilter<AuthResponsesOperationFilter>();
+});
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IJwtClaimService, JwtService>();
