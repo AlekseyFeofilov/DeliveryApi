@@ -20,7 +20,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize]
+    [Authorize]
     [Route("api/order/{id:guid}")]
     public async Task<IActionResult> GetOrder(Guid id)
     {
@@ -32,12 +32,11 @@ public class OrderController : ControllerBase
     }
     
     [HttpGet]
-    //[Authorize]
+    [Authorize]
     [Route("api/order")]
     public async Task<IActionResult> GetAllOrders()
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
         var orders = await _orderService.GetAllOrders(userId);
         
         if (orders == null) return Unauthorized();
@@ -46,24 +45,22 @@ public class OrderController : ControllerBase
     }
     
     [HttpPost]
-    //[Authorize]
+    [Authorize]
     [Route("api/order")]
     public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
         //var orderCreateDto = new OrderCreateDto(deliveryTime, address);
         if (!await _orderService.CreateOrder(orderCreateDto, userId)) return Unauthorized();
         return Ok();
     }
     
     [HttpPost]
-    //[Authorize]
+    [Authorize]
     [Route("api/order/{id:guid}/status")]
     public async Task<IActionResult> ConfirmOrderDelivery(Guid id)
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
         if (!await _orderService.ConfirmOrderDelivery(id)) return Unauthorized();
         return Ok();
     }

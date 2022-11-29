@@ -19,12 +19,11 @@ public class BasketController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize]
+    [Authorize]
     [Route("/api/basket")]
     public async Task<IActionResult> GetCart()
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
         var cart = await _basketService.GetCart(userId);
 
         if (cart == null) return Unauthorized();
@@ -32,12 +31,11 @@ public class BasketController : ControllerBase
     }
 
     [HttpPost]
-    //[Authorize]
+    [Authorize]
     [Route("/api/basket/dish/{dishId:guid}")]
     public async Task<IActionResult> AddBasket(Guid dishId)
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
         var isAdded = await _basketService.AddBasket(dishId, userId);
 
         if (isAdded == false)
@@ -48,12 +46,11 @@ public class BasketController : ControllerBase
     }
 
     [HttpDelete]
-    //[Authorize]
+    [Authorize]
     [Route("/api/basket/dish/{dishId:guid}")]
     public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase = false) //todo add increase param
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
         var isDeleted = await _basketService.DeleteBasket(dishId, userId, increase);
 
         if (isDeleted == false)

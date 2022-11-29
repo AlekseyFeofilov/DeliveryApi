@@ -17,11 +17,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IJwtClaimService, JwtService>();
 builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDishService, DishServices>();
-builder.Services.AddScoped<IJwtClaimService, JwtService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 //JWT

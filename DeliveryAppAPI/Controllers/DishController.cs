@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
 using DeliveryAppAPI.Services.DishServices;
+using DeliveryAppAPI.Services.JwtService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +13,12 @@ namespace DeliveryAppAPI.Controllers;
 public class DishController : ControllerBase
 {
     private readonly IDishService _dishService;
+    private readonly IJwtClaimService _jwtClaimService;
 
-    public DishController(IDishService dishService)
+    public DishController(IDishService dishService, IJwtClaimService jwtClaimService)
     {
         _dishService = dishService;
+        _jwtClaimService = jwtClaimService;
     }
 
     [HttpGet]
@@ -39,23 +43,21 @@ public class DishController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize]
+    [Authorize]
     [Route("/api/dish/{id:guid}/rating/check")]
     public async Task<IActionResult> CheckReviewAccess(Guid id)
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
 
         return Ok(await _dishService.CheckReviewAccess(id, userId));
     }
 
     [HttpPost]
-    //[Authorize]
+    [Authorize]
     [Route("/api/dish/{id:guid}/rating")]
     public async Task<IActionResult> SetReview(Guid id, int rating)
     {
-        //var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var userId = Guid.Parse("7991d400-efd9-416e-b89f-ff72ba8d32ac");
+        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
 
         if (!await _dishService.SetReview(id, userId, rating)) return BadRequest();
 

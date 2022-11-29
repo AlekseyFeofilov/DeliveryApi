@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DeliveryAppAPI;
 
-public class JwtConfigurations
+public static class JwtConfigurations
 {
     public const string Issuer = "JwtTestIssuer"; 
     public const string Audience = "JwtTestClient";
