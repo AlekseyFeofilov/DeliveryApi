@@ -6,8 +6,10 @@ namespace DeliveryAppAPI.Models.Dto;
 public class OrderCreateDto
 {
     [JsonPropertyName("deliveryTime")]
+    [Required]
     public DateTime DeliveryTime { get; set; }
     [JsonPropertyName("address")]
+    [Required]
     [MinLength(1)]
     public string Address { get; set; }
 

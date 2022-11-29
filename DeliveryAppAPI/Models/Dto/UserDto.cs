@@ -9,11 +9,13 @@ public class UserDto
     [JsonPropertyName("id")]
     public Guid Id { get; set; }
     [MinLength(1)]
+    [Required]
     [JsonPropertyName("fullName")]
     public string FullName { get; set; }
     [JsonPropertyName("birthDate")]
     public DateTime? BirthDate { get; set; }
     [JsonPropertyName("gender")]
+    [Required]
     public Gender Gender { get; set; }
     [JsonPropertyName("address")]
     public string? Address { get; set; }

@@ -8,11 +8,13 @@ public class DishDto
 {
     [JsonPropertyName("id")] public Guid Id { get; set; }
     [JsonPropertyName("name")]
+    [Required]
     [MinLength(1)]
     public string Name { get; set; }
     [JsonPropertyName("description")]
     public string? Description { get; set; }
     [JsonPropertyName("price")]
+    [Required]
     [Range(0, double.MaxValue)]
     public double Price { get; set; }
     [JsonPropertyName("image")]
