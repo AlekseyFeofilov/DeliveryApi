@@ -41,7 +41,7 @@ builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDishService, DishServices>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddTransient<InternalServerErrorHandlingMiddleware>();
+builder.Services.AddTransient<ErrorHandlingMiddleware>();
 
 //JWT
 builder.Services.AddAuthorization();
