@@ -56,7 +56,7 @@ public class JwtService : IJwtService, IJwtClaimService
         return claimsIdentity;
     }
 
-    public string GetClaimValue(string claimType, HttpRequest request)
+    private string GetClaimValue(string claimType, HttpRequest request)
     {
         var handler = new JwtSecurityTokenHandler();
         string authHeader = request.Headers["Authorization"]!;
@@ -64,5 +64,10 @@ public class JwtService : IJwtService, IJwtClaimService
         
         var jwtToken = handler.ReadJwtToken(authHeader);
         return jwtToken.Claims.First(claim => claim.Type == claimType).Value;
+    }
+
+    public Guid GetIdClaim(HttpRequest request)
+    {
+        return Guid.Parse(GetClaimValue(ClaimTypes.NameIdentifier, request));
     }
 }

@@ -2,5 +2,5 @@ namespace DeliveryAppAPI.Services.JwtService;
 
 public interface IJwtClaimService
 {
-    string GetClaimValue(string claimType, HttpRequest request);
+    Guid GetIdClaim(HttpRequest request);
 }
