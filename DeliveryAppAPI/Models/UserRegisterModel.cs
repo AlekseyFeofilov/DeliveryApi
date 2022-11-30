@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using DeliveryAppAPI.Attributes.ValidationAttributes;
 using DeliveryAppAPI.Models.Enums;
 
 namespace DeliveryAppAPI.Models;
@@ -21,6 +22,7 @@ public class UserRegisterModel
     [JsonPropertyName("address")]
     public string? Address { get; }
     [JsonPropertyName("birthDate")]
+    [DateRange(100 * 365, 0, true)]
     public DateTime? BirthDate { get; }  //todo date validation (for all project too)
     [JsonPropertyName("gender")]
     [Required]

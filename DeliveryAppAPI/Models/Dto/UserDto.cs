@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using DeliveryAppAPI.Attributes.ValidationAttributes;
 using DeliveryAppAPI.Models.Enums;
 
 namespace DeliveryAppAPI.Models.Dto;
@@ -13,6 +14,7 @@ public class UserDto
     [JsonPropertyName("fullName")]
     public string FullName { get; }
     [JsonPropertyName("birthDate")]
+    [DateRange(100 * 365, 0, true)]
     public DateTime? BirthDate { get; }
     [JsonPropertyName("gender")]
     [Required]

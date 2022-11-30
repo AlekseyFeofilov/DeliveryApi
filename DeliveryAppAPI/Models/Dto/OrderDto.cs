@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using DeliveryAppAPI.Attributes.ValidationAttributes;
 using DeliveryAppAPI.Models.Enums;
 
 namespace DeliveryAppAPI.Models.Dto;
@@ -10,9 +11,11 @@ public class OrderDto
     public Guid Id { get; }
     [JsonPropertyName("deliveryTime")]
     [Required]
+    [DateRange(0)]
     public DateTime DeliveryTime { get; }
     [JsonPropertyName("orderTime")]
     [Required]
+    [DateRange(laterThanTodayBy: 0)]
     public DateTime OrderTime { get; }
     [JsonPropertyName("status")]
     [Required]

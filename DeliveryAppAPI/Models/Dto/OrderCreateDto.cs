@@ -7,6 +7,7 @@ public class OrderCreateDto
 {
     [JsonPropertyName("deliveryTime")]
     [Required]
+    //[DateRange(0)]
     public DateTime DeliveryTime { get; }
 
     [JsonPropertyName("address")]
