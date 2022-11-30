@@ -1,9 +1,12 @@
 using System.Security.Claims;
+using DeliveryAppAPI.Exceptions;
+using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
 using DeliveryAppAPI.Models.Response;
 using DeliveryAppAPI.Services.DishServices;
 using DeliveryAppAPI.Services.JwtService;
+using DeliveryAppAPI.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +16,14 @@ namespace DeliveryAppAPI.Controllers;
 public class DishController : ControllerBase
 {
     private readonly IDishService _dishService;
+    private readonly IUserService _userService;
     private readonly IJwtClaimService _jwtClaimService;
 
-    public DishController(IDishService dishService, IJwtClaimService jwtClaimService)
+    public DishController(IDishService dishService, IJwtClaimService jwtClaimService, IUserService userService)
     {
         _dishService = dishService;
         _jwtClaimService = jwtClaimService;
+        _userService = userService;
     }
 
     /// <summary>
@@ -49,14 +54,8 @@ public class DishController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Get(Guid id)
     {
-        var dish = await _dishService.GetDish(id);
-
-        if (dish == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(dish);
+        var dish = await GetDish(id);
+        return Ok(_dishService.GetDishDto(dish));
     }
 
     /// <summary>
@@ -70,11 +69,10 @@ public class DishController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CheckReviewAccess(Guid id)
+    public IActionResult CheckReviewAccess(Guid id)
     {
-        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-
-        return Ok(await _dishService.CheckReviewAccess(id, userId));
+        var userId = _jwtClaimService.GetIdClaim(Request);
+        return Ok(_dishService.CheckReviewAccess(id, userId));
     }
 
     /// <summary>
@@ -91,10 +89,19 @@ public class DishController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SetReview(Guid id, int ratingScore)
     {
-        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-
-        if (!await _dishService.SetReview(id, userId, ratingScore)) return BadRequest();
-
+        var user = await _userService.GetUser(Request);
+        var dish = await GetDish(id);
+        
+        if (!_dishService.CheckReviewAccess(id, user.Id)) return Forbid();
+        await _dishService.SetReview(dish, user, ratingScore);
         return Ok();
+    }
+
+    private async Task<Dish> GetDish(Guid id)
+    {
+        var dish = await _dishService.GetDish(id);
+        if (dish == null) throw new NotFoundException();
+        
+        return dish;
     }
 }
