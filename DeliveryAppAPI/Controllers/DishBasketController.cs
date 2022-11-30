@@ -1,23 +1,32 @@
 using System.Security.Claims;
+using DeliveryAppAPI.Exceptions;
+using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Response;
 using DeliveryAppAPI.Services.BasketService;
+using DeliveryAppAPI.Services.DishServices;
 using DeliveryAppAPI.Services.JwtService;
+using DeliveryAppAPI.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeliveryAppAPI.Controllers;
 
 [ApiController]
-public class BasketController : ControllerBase
+public class DishBasketController : ControllerBase
 {
-    private readonly IBasketService _basketService;
+    private readonly IDishBasketService _dishBasketService;
+    private readonly IUserService _userService;
+    private readonly IDishService _dishService;
     private readonly IJwtClaimService _jwtClaimService;
 
-    public BasketController(IBasketService basketService, IJwtClaimService jwtClaimService)
+    public DishBasketController(IDishBasketService dishBasketService, IJwtClaimService jwtClaimService,
+        IUserService userService, IDishService dishService)
     {
-        _basketService = basketService;
+        _dishBasketService = dishBasketService;
         _jwtClaimService = jwtClaimService;
+        _userService = userService;
+        _dishService = dishService;
     }
 
     /// <summary>
@@ -32,10 +41,8 @@ public class BasketController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCart()
     {
-        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var cart = await _basketService.GetCart(userId);
-
-        if (cart == null) return Unauthorized();
+        var userId = _jwtClaimService.GetIdClaim(Request);
+        var cart = await _dishBasketService.GetCart(userId);
         return Ok(cart);
     }
 
@@ -51,13 +58,10 @@ public class BasketController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddBasket(Guid dishId)
     {
-        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var isAdded = await _basketService.AddBasket(dishId, userId);
+        var user = await _userService.GetUser(Request);
+        var dish = await GetDish(dishId);
 
-        if (isAdded == false)
-            return StatusCode(500,
-                new Response("Internal server error",
-                    "This error isn't implemented")); //todo there are two reason for error (there isn't this user and there isn't this dish)
+        await _dishBasketService.AddBasket(dish, user);
         return Ok();
     }
 
@@ -73,11 +77,24 @@ public class BasketController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase = false) //todo add increase param
     {
-        var userId = Guid.Parse(_jwtClaimService.GetClaimValue(ClaimTypes.NameIdentifier, Request));
-        var isDeleted = await _basketService.DeleteBasket(dishId, userId, increase);
+        var userId = _jwtClaimService.GetIdClaim(Request);
+        var dishBasket = await GetDishBasket(dishId, userId);
 
-        if (isDeleted == false)
-            return StatusCode(500, new Response("Internal server error", "This error isn't implemented"));
+        _dishBasketService.DeleteBasket(dishBasket, increase);
         return Ok();
+    }
+
+    private async Task<Dish> GetDish(Guid dishId)
+    {
+        var dish = await _dishService.GetDish(dishId);
+        if (dish == null) throw new NotFoundException();
+        return dish;
+    }
+
+    private async Task<DishBasket> GetDishBasket(Guid dishId, Guid userId)
+    {
+        var dishBasket = await _dishBasketService.GetDishBasket(dishId, userId);
+        if (dishBasket == null) throw new NotFoundException();
+        return dishBasket;
     }
 }

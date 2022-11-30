@@ -37,7 +37,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IJwtClaimService, JwtService>();
-builder.Services.AddScoped<IBasketService, BasketService>();
+builder.Services.AddScoped<IDishBasketService, DishBasketService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDishService, DishServices>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -67,7 +67,7 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); //todo solve
 
 var app = builder.Build();
 
-app.UseMiddleware<InternalServerErrorHandlingMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
