@@ -1,11 +1,13 @@
+using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
 
 namespace DeliveryAppAPI.Services.OrderService;
 
 public interface IOrderService
 {
-    Task<OrderDto?> GetOrder(Guid id);
-    Task<IEnumerable<OrderInfoDto>?> GetAllOrders(Guid userId);
-    Task<bool> CreateOrder(OrderCreateDto orderCreateDto, Guid userId);
-    Task<bool> ConfirmOrderDelivery(Guid id);
+    Task<OrderDto> GetOrderDto(Order order);
+    Task<IEnumerable<OrderInfoDto>> GetAllOrders(Guid userId);
+    Task<bool> CreateOrder(OrderCreateDto orderCreateDto, User user);
+    void ConfirmOrderDelivery(Order order);
+    Task<Order?> GetOrder(Guid id);
 }
