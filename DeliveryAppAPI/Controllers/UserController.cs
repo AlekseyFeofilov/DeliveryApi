@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using DeliveryAppAPI.Models;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Response;
@@ -11,17 +10,16 @@ namespace DeliveryAppAPI.Controllers;
 
 [ApiController]
 [Produces("application/json")]
+[Route("api/account")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IJwtService _jwtService;
-    private readonly IJwtClaimService _jwtClaimService;
 
-    public UserController(IUserService userService, IJwtService jwtService, IJwtClaimService jwtClaimService)
+    public UserController(IUserService userService, IJwtService jwtService)
     {
         _userService = userService;
         _jwtService = jwtService;
-        _jwtClaimService = jwtClaimService;
     }
 
     /// <summary>
@@ -36,8 +34,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register(UserRegisterModel model)
     {
-        if (await _userService.GetUser(model.Email) != null) return BadRequest("Email is already in registered"); //todo: Add to custom validator
-
+        if (await _userService.IsRegistered(model.Email)) return BadRequest("Email is already in registered"); //todo: Add to custom validator
         _userService.Register(model);
         return await GetToken(new LoginCredentials(model.Email, model.Password));
     }
@@ -48,7 +45,7 @@ public class UserController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="400">Bad Request</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Route("/api/account/login")]
+    [HttpPost, Route("login")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -64,7 +61,7 @@ public class UserController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Route("/api/account/logout")]
+    [HttpPost, Authorize, Route("logout")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public IActionResult Logout()
@@ -79,17 +76,13 @@ public class UserController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Route("/api/account/profile")]
+    [HttpGet, Authorize, Route("profile")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetProfileInfo()
     {
-        var email = _jwtClaimService.GetClaimValue(ClaimTypes.Email, Request);
-        var user = await _userService.GetUser(email);
-        if (user == null) return Unauthorized();
-        
-        return Ok(_userService.GetProfileInfo(user));
+        return Ok(_userService.GetProfileInfo(await _userService.GetUser(Request)));
     }
     
     /// <summary>
@@ -99,23 +92,19 @@ public class UserController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPut, Authorize, Route("/api/account/profile")]
+    [HttpPut, Authorize, Route("profile")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> EditProfileInfo(UserEditModel model)
     {
-        var email = _jwtClaimService.GetClaimValue(ClaimTypes.Email, Request);
-        var user = await _userService.GetUser(email);
-        if (user == null) return Unauthorized();
-
-        _userService.EditProfileInfo(model, user);
+        _userService.EditProfileInfo(model, await _userService.GetUser(Request));
         return Ok();
     }
 
     private async Task<IActionResult> GetToken(LoginCredentials credentials)
     {
         var identity = await _jwtService.GetIdentity(credentials);
-        if (identity == null) return BadRequest(new { errorText = "Invalid username or password" });
+        if (identity == null) return BadRequest("Invalid username or password");
 
         return Ok(new TokenResponse(_jwtService.GetToken(identity)));
     }

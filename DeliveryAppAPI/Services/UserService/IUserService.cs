@@ -9,5 +9,6 @@ public interface IUserService
     void Register(UserRegisterModel model);
     UserDto GetProfileInfo(User user);
     void EditProfileInfo(UserEditModel model, User user);
-    Task<User?> GetUser(string email);
+    Task<User> GetUser(HttpRequest request);
+    Task<bool> IsRegistered(string email);
 }
