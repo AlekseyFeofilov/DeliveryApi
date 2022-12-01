@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DeliveryAppAPI.Exceptions;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
@@ -52,6 +53,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllOrders()
     {
+        var u = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;//todo 
         var user = await _userService.GetUser(Request);
         return Ok(await _orderService.GetAllOrders(user.Id));
     }

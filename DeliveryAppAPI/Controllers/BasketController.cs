@@ -13,14 +13,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace DeliveryAppAPI.Controllers;
 
 [ApiController]
-public class DishBasketController : ControllerBase
+[Route("api/basket")]
+public class BasketController : ControllerBase
 {
     private readonly IDishBasketService _dishBasketService;
     private readonly IUserService _userService;
     private readonly IDishService _dishService;
     private readonly IJwtClaimService _jwtClaimService;
 
-    public DishBasketController(IDishBasketService dishBasketService, IJwtClaimService jwtClaimService,
+    public BasketController(IDishBasketService dishBasketService, IJwtClaimService jwtClaimService,
         IUserService userService, IDishService dishService)
     {
         _dishBasketService = dishBasketService;
@@ -35,7 +36,7 @@ public class DishBasketController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Route("/api/basket")]
+    [HttpGet, Authorize]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<DishBasketDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -53,7 +54,7 @@ public class DishBasketController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Route("/api/basket/dish/{dishId:guid}")]
+    [HttpPost, Authorize, Route("dish/{dishId:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddBasket(Guid dishId)
@@ -72,7 +73,7 @@ public class DishBasketController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpDelete, Authorize, Route("/api/basket/dish/{dishId:guid}")]
+    [HttpDelete, Authorize, Route("dish/{dishId:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase = false) //todo add increase param

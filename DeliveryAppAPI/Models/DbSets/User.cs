@@ -10,7 +10,7 @@ public class User
     [MinLength(1)]
     public string FullName { get; set; }
     [DateRange(100 * 365, 0, true)]
-    public DateTime? BirthDate { get; set; }
+    public DateTime? BirthDate { get; set; }//todo 
     public Gender Gender { get; set; }
     public string? Address { get; set; }
     [EmailAddress]

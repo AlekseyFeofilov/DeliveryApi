@@ -17,7 +17,7 @@ public class DishServices : IDishService
         _context = context;
     }
 
-    public async Task<DishPagedListDto> GetAllDishes(DishCategory? category, DishSorting? sorting, int? page,
+    public async Task<DishPagedListDto> GetAllDishes(DishCategory[]? category, DishSorting? sorting, int? page,
         bool vegetarian = false)
     {
         var dishes = _context.Dishes.AsQueryable();
@@ -111,7 +111,7 @@ public class DishServices : IDishService
         return new DishPagedListDto(
             dishPage,
             new PageInfoModel(
-                PageSize,
+                PageSize,//todo it can be less than pagesize
                 (int)Math.Ceiling(dishes.Count() * 1.0 / PageSize),
                 page
             )
@@ -147,9 +147,9 @@ public class DishServices : IDishService
         return available ? dishes.Where(x => x.Vegetarian) : dishes;
     }
 
-    private IQueryable<Dish> GetCategory(IQueryable<Dish> dishes, DishCategory? category = null)
+    private IQueryable<Dish> GetCategory(IQueryable<Dish> dishes, DishCategory[]? category = null)
     {
-        return category.HasValue ? dishes.Where(x => x.Category == category) : dishes;
+        return category != null ? dishes.Where(x => category.Contains(x.Category)) : dishes;
     }
 
     private IQueryable<Dish> Sort(IQueryable<Dish> dishes, DishSorting? sorting = null)

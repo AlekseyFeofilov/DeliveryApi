@@ -3,7 +3,7 @@ using DeliveryAppAPI.Models.Enums;
 
 namespace DeliveryAppAPI.Models.DbSets;
 
-public class Dish
+public class Dish//todo automapper
 {
     public Guid Id { get; set; }
     [MinLength(1)]
