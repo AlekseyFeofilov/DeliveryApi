@@ -1,3 +1,5 @@
+using AutoMapper;
+using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.DbContexts;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
@@ -9,23 +11,21 @@ namespace DeliveryAppAPI.Services.OrderService;
 public class OrderService : IOrderService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public OrderService(ApplicationDbContext context)
+    public OrderService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<OrderDto> GetOrderDto(Order order)
     {
-        return new OrderDto(
-            order.Id,
-            order.DeliveryTime,
-            order.OrderTime,
-            order.Status,
-            order.Price,
-            await GetOrderDishBaskets(order),
-            order.Address
-        );
+        var orderDto = _mapper.Map<OrderDto>(order);
+        var dishBasketsDto = await GetOrderDishBaskets(order);
+
+        orderDto.DishBaskets = dishBasketsDto;
+        return orderDto;
     }
 
     public async Task<IEnumerable<OrderInfoDto>> GetAllOrders(Guid userId)
@@ -40,10 +40,10 @@ public class OrderService : IOrderService
     {
         var cart = await GetOrderDishBaskets(user.Id);
         if (!cart.Any()) return false;
-        
+
         await _context.Orders.AddAsync(CreateOrder(orderCreateDto, cart, user));
         EmptyUserCart(user);
-        
+
         await _context.SaveChangesAsync();
         return true;
     }
@@ -58,7 +58,12 @@ public class OrderService : IOrderService
     {
         return await _context.DishBaskets
             .Where(x => order.DishBaskets.Contains(x))
-            .Select(x => new DishBasketDto(x.Id, x.Dish.Name, x.Dish.Price, x.Amount, x.Dish.Image))
+            .Select(x => new DishBasketDto(//todo
+                x.Id, 
+                x.Dish.Name, 
+                x.Dish.Price, 
+                x.Amount, 
+                x.Dish.Image))
             .ToListAsync();
     }
 
@@ -66,6 +71,7 @@ public class OrderService : IOrderService
     {
         return await _context.DishBaskets
             .Where(x => x.User != null && x.User.Id == userId)
+            .Include(x => x.Dish)
             .ToListAsync();
     }
 
@@ -74,7 +80,7 @@ public class OrderService : IOrderService
         return new Order
         {
             Id = Guid.NewGuid(),
-            DeliveryTime = orderCreateDto.DeliveryTime, //todo check the laboratory description
+            DeliveryTime = DateTime.Now.AddHours(AppConfigurations.DeliveryDelay),
             OrderTime = DateTime.Now,
             Status = OrderStatus.InProcess,
             Price = cart.Sum(x => x.Amount * x.Dish.Price),
@@ -84,7 +90,7 @@ public class OrderService : IOrderService
         };
     }
 
-    private void EmptyUserCart(User user)
+    private static void EmptyUserCart(User user)
     {
         foreach (var dishBasket in user.Cart)
         {

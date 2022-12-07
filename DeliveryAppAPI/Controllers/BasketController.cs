@@ -1,12 +1,10 @@
 using System.Security.Claims;
+using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.Exceptions;
-using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Response;
 using DeliveryAppAPI.Services.BasketService;
-using DeliveryAppAPI.Services.DishServices;
-using DeliveryAppAPI.Services.JwtService;
-using DeliveryAppAPI.Services.UserService;
+using DeliveryAppAPI.Services.RepositoryService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,17 +15,12 @@ namespace DeliveryAppAPI.Controllers;
 public class BasketController : ControllerBase
 {
     private readonly IDishBasketService _dishBasketService;
-    private readonly IUserService _userService;
-    private readonly IDishService _dishService;
-    private readonly IJwtClaimService _jwtClaimService;
+    private readonly IRepositoryService _repositoryService;
 
-    public BasketController(IDishBasketService dishBasketService, IJwtClaimService jwtClaimService,
-        IUserService userService, IDishService dishService)
+    public BasketController(IDishBasketService dishBasketService, IRepositoryService repositoryService)
     {
         _dishBasketService = dishBasketService;
-        _jwtClaimService = jwtClaimService;
-        _userService = userService;
-        _dishService = dishService;
+        _repositoryService = repositoryService;
     }
 
     /// <summary>
@@ -36,15 +29,14 @@ public class BasketController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize]
-    [Produces("application/json")]
+    [HttpGet, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy)]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(IEnumerable<DishBasketDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCart()
     {
-        var userId = _jwtClaimService.GetIdClaim(Request);
-        var cart = await _dishBasketService.GetCart(userId);
-        return Ok(cart);
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        return Ok(await _dishBasketService.GetCart(userId));
     }
 
     /// <summary>
@@ -54,13 +46,13 @@ public class BasketController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Route("dish/{dishId:guid}")]
-    [Produces("application/json")]
+    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("dish/{dishId:guid}")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddBasket(Guid dishId)
     {
-        var user = await _userService.GetUser(Request);
-        var dish = await GetDish(dishId);
+        var user = await _repositoryService.GetUser(User);
+        var dish = await _repositoryService.GetDish(dishId);
 
         await _dishBasketService.AddBasket(dish, user);
         return Ok();
@@ -73,29 +65,16 @@ public class BasketController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpDelete, Authorize, Route("dish/{dishId:guid}")]
-    [Produces("application/json")]
+    [HttpDelete, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("dish/{dishId:guid}")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase = false) //todo add increase param
+    public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase = false)
     {
-        var userId = _jwtClaimService.GetIdClaim(Request);
-        var dishBasket = await GetDishBasket(dishId, userId);
-
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var dishBasket = await _repositoryService.GetDishBasket(dishId, userId);
+        if (dishBasket == null) throw new NotFoundException();
+        
         _dishBasketService.DeleteBasket(dishBasket, increase);
         return Ok();
-    }
-
-    private async Task<Dish> GetDish(Guid dishId)
-    {
-        var dish = await _dishService.GetDish(dishId);
-        if (dish == null) throw new NotFoundException();
-        return dish;
-    }
-
-    private async Task<DishBasket> GetDishBasket(Guid dishId, Guid userId)
-    {
-        var dishBasket = await _dishBasketService.GetDishBasket(dishId, userId);
-        if (dishBasket == null) throw new NotFoundException();
-        return dishBasket;
     }
 }

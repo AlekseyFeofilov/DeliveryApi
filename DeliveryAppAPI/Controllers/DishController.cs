@@ -1,12 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using DeliveryAppAPI.Exceptions;
-using DeliveryAppAPI.Models.DbSets;
+using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
 using DeliveryAppAPI.Models.Response;
 using DeliveryAppAPI.Services.DishServices;
-using DeliveryAppAPI.Services.JwtService;
-using DeliveryAppAPI.Services.UserService;
+using DeliveryAppAPI.Services.RepositoryService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,14 +16,12 @@ namespace DeliveryAppAPI.Controllers;
 public class DishController : ControllerBase
 {
     private readonly IDishService _dishService;
-    private readonly IUserService _userService;
-    private readonly IJwtClaimService _jwtClaimService;
+    private readonly IRepositoryService _repositoryService;
 
-    public DishController(IDishService dishService, IJwtClaimService jwtClaimService, IUserService userService)
+    public DishController(IDishService dishService, IRepositoryService repositoryService)
     {
         _dishService = dishService;
-        _jwtClaimService = jwtClaimService;
-        _userService = userService;
+        _repositoryService = repositoryService;
     }
 
     /// <summary>
@@ -34,13 +31,13 @@ public class DishController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="500">InternalServerError</response>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(DishPagedListDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Get([FromQuery] DishCategory[]? categories = null, bool vegetarian = false,
-        DishSorting? sorting = null, int? page = 1) //todo set multiple categories choose
+        DishSorting? sorting = null, int? page = 1)
     {
-        return Ok(await _dishService.GetAllDishes(categories, sorting, page, vegetarian));
+        return Ok(await _dishService.GetAllDishes(categories, sorting, page ?? 1, vegetarian));
     }
 
     /// <summary>
@@ -50,13 +47,13 @@ public class DishController : ControllerBase
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
     [HttpGet, Route("{id:guid}")]
-    [Produces("application/json")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(DishDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Get(Guid id)
     {
-        var dish = await GetDish(id);
-        return Ok(_dishService.GetDishDto(dish));
+        var dish = await _repositoryService.GetDish(id);
+        return Ok(await _dishService.GetDishDto(dish));
     }
 
     /// <summary>
@@ -66,13 +63,13 @@ public class DishController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Route("{id:guid}/rating/check")]
-    [Produces("application/json")]
+    [HttpGet, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/rating/check")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public IActionResult CheckReviewAccess(Guid id)
     {
-        var userId = _jwtClaimService.GetIdClaim(Request);
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         return Ok(_dishService.CheckReviewAccess(id, userId));
     }
 
@@ -85,24 +82,16 @@ public class DishController : ControllerBase
     /// <response code="403">Forbidden</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Route("{id:guid}/rating")]
-    [Produces("application/json")] //todo: in swagger documentation there is media type
+    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/rating")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SetReview(Guid id, int ratingScore)
+    public async Task<IActionResult> SetReview(Guid id, [Range(1, 10)] int ratingScore)
     {
-        var user = await _userService.GetUser(Request);//todo 
-        var dish = await GetDish(id);
-        
+        var user = await _repositoryService.GetUser(User);
+        var dish = await _repositoryService.GetDish(id);
         if (!_dishService.CheckReviewAccess(id, user.Id)) return Forbid();
+        
         await _dishService.SetReview(dish, user, ratingScore);
         return Ok();
-    }
-
-    private async Task<Dish> GetDish(Guid id)//todo in service
-    {
-        var dish = await _dishService.GetDish(id);
-        if (dish == null) throw new NotFoundException();
-        
-        return dish;
     }
 }

@@ -1,45 +1,32 @@
-using System.Security.Claims;
+using AutoMapper;
 using DeliveryAppAPI.DbContexts;
-using DeliveryAppAPI.Exceptions;
 using DeliveryAppAPI.Models;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
-using DeliveryAppAPI.Services.JwtService;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryAppAPI.Services.UserService;
 
-public class UserService : IUserService //todo separate service into a few interfaces
+public class UserService : IUserService
 {
     private readonly ApplicationDbContext _context;
-    private readonly IJwtClaimService _jwtClaimService;
+    private readonly IMapper _mapper;
 
-    public UserService(ApplicationDbContext context, IJwtClaimService jwtClaimService)
+    public UserService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
-        _jwtClaimService = jwtClaimService;
+        _mapper = mapper;
     }
 
-    public void Register(UserRegisterModel model)
+    public async Task Register(UserRegisterModel model)
     {
-        _context.Users.Add(new User
-        {
-            FullName = model.FullName,
-            BirthDate = model.BirthDate,
-            Gender = model.Gender,
-            Address = model.Address,
-            Email = model.Email,
-            Password = model.Password,
-            PhoneNumber = model.PhoneNumber
-        });
-
-        _context.SaveChangesAsync();
+        _context.Users.Add(_mapper.Map<User>(model));
+        await _context.SaveChangesAsync();
     }
 
     public UserDto GetProfileInfo(User user)
     {
-        return new UserDto(user.Id, user.FullName, user.BirthDate, user.Gender, user.Address, user.Email,
-            user.PhoneNumber);
+        return _mapper.Map<UserDto>(user);
     }
 
     public void EditProfileInfo(UserEditModel model, User user)

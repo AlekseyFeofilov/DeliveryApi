@@ -1,27 +1,25 @@
-using System.Security.Claims;
-using DeliveryAppAPI.Exceptions;
-using DeliveryAppAPI.Models.DbSets;
+using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Response;
 using DeliveryAppAPI.Services.OrderService;
-using DeliveryAppAPI.Services.UserService;
+using DeliveryAppAPI.Services.RepositoryService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeliveryAppAPI.Controllers;
 
 [ApiController]
-[Produces("application/json")]
+[Produces(AppConfigurations.ResponseContentType)]
 [Route("api/order")]
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;
-    private readonly IUserService _userService;
+    private readonly IRepositoryService _repositoryService;
 
-    public OrderController(IOrderService orderService, IUserService userService)
+    public OrderController(IOrderService orderService, IRepositoryService repositoryService)
     {
         _orderService = orderService;
-        _userService = userService;
+        _repositoryService = repositoryService;
     }
 
     /// <summary>
@@ -31,13 +29,14 @@ public class OrderController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Route("{id:guid}")]
-    [Produces("application/json")]
+    [HttpGet, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetOrderDto(Guid id)
     {
-        return Ok(_orderService.GetOrderDto(await GetOrder(id)));
+        var order = await _repositoryService.GetOrder(id);
+        return Ok(await _orderService.GetOrderDto(order));
     }
 
     /// <summary>
@@ -47,18 +46,16 @@ public class OrderController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Route("")]
-    [Produces("application/json")]
+    [HttpGet, Authorize(AppConfigurations.ActiveTokenPolicy)]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(IEnumerable<OrderInfoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllOrders()
     {
-        var u = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;//todo 
-        var user = await _userService.GetUser(Request);
+        var user = await _repositoryService.GetUser(User);
         return Ok(await _orderService.GetAllOrders(user.Id));
     }
-
-    //todo make response code description more informative
+    
     /// <summary>
     /// Creating the order from dishes in basket
     /// </summary>
@@ -67,15 +64,15 @@ public class OrderController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Route("")]
-    [Produces("application/json")]
+    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy)]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
     {
-        var user = await _userService.GetUser(Request);
-        if (!await _orderService.CreateOrder(orderCreateDto, user))
-            return StatusCode(403, "There are no dish baskets in the cart");
-        return Ok();
+        var user = await _repositoryService.GetUser(User);
+        if (await _orderService.CreateOrder(orderCreateDto, user)) return Ok();
+        
+        return StatusCode(StatusCodes.Status403Forbidden, ErrorMessage.EmptyCart);
     }
 
     /// <summary>
@@ -86,19 +83,12 @@ public class OrderController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Route("{id:guid}/status")]
-    [Produces("application/json")]
+    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/status")]
+    [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ConfirmOrderDelivery(Guid id)
     {
-        _orderService.ConfirmOrderDelivery(await GetOrder(id));
+        _orderService.ConfirmOrderDelivery(await _repositoryService.GetOrder(id));
         return Ok();
-    }
-
-    private async Task<Order> GetOrder(Guid id)
-    {
-        var order = await _orderService.GetOrder(id);
-        if (order == null) throw new NotFoundException();
-        return order;
     }
 }

@@ -1,23 +1,29 @@
+using AutoMapper;
+using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Exceptions;
 using DeliveryAppAPI.Models;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DeliveryAppAPI.Services.DishServices;
 
 public class DishServices : IDishService
 {
     private readonly ApplicationDbContext _context;
-    private const int PageSize = 5;
+    private readonly IMapper _mapper;
+    private const int PageSize = AppConfigurations.PageSize;
 
-    public DishServices(ApplicationDbContext context)
+    public DishServices(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<DishPagedListDto> GetAllDishes(DishCategory[]? category, DishSorting? sorting, int? page,
+    public async Task<DishPagedListDto> GetAllDishes(DishCategory[]? category, DishSorting? sorting, int page,
         bool vegetarian = false)
     {
         var dishes = _context.Dishes.AsQueryable();
@@ -25,9 +31,81 @@ public class DishServices : IDishService
         dishes = GetCategory(dishes, category);
         dishes = Sort(dishes, sorting);
 
-        var notNUllPage = page ?? 1;
-        var dishPage = await GetDishPage(dishes, notNUllPage);
-        return GetDishPagedList(dishes, dishPage, notNUllPage);
+        var dishPage = await GetDishPage(dishes, page);
+        return GetDishPagedList(dishes, dishPage, page);
+    }
+
+    private static IQueryable<Dish> GetVegetarian(IQueryable<Dish> dishes, bool available = true)
+    {
+        return available ? dishes.Where(x => x.Vegetarian) : dishes;
+    }
+
+    private static IQueryable<Dish> GetCategory(IQueryable<Dish> dishes, DishCategory[]? category = null)
+    {
+        return !category.IsNullOrEmpty()
+            ? dishes.Where(x => category != null && category.Contains(x.Category))
+            : dishes;
+    }
+
+    private static IQueryable<Dish> Sort(IQueryable<Dish> dishes, DishSorting? sorting = null)
+    {
+        return sorting switch
+        {
+            DishSorting.NameAsc => dishes.OrderBy(x => x.Name),
+            DishSorting.NameDesc => dishes.OrderByDescending(x => x.Name),
+            DishSorting.PriceAsc => dishes.OrderBy(x => x.Price),
+            DishSorting.PriceDesc => dishes.OrderByDescending(x => x.Price),
+            DishSorting.RatingAsc => dishes.OrderBy(x => x.Reviews.Average(r => r.Rating)),
+            DishSorting.RatingDesc => dishes.OrderByDescending(x => x.Reviews.Average(r => r.Rating)),
+            null => dishes,
+            _ => throw new ArgumentOutOfRangeException(nameof(sorting), sorting, null)
+        };
+    }
+
+    private static async Task<IEnumerable<DishDto>> GetDishPage(IQueryable<Dish> dishes, int page)
+    {
+        var dishesPageCount = GetDishPageCount(dishes, page);
+
+        return await dishes
+            .Skip((page - 1) * PageSize)
+            .Take(dishesPageCount)
+            .Select(x => new DishDto(
+                x.Id,
+                x.Name,
+                x.Description,
+                x.Price,
+                x.Image,
+                x.Vegetarian,
+                x.Reviews.Average(r => r.Rating),
+                x.Category
+            ))
+            .ToListAsync();
+    }
+
+    private static int GetDishPageCount(IQueryable<Dish> dishes, int page)
+    {
+        if (dishes.Count() < PageSize * page)
+        {
+            return Math.Max(0, dishes.Count() - PageSize * (page - 1));
+        }
+
+        return PageSize;
+    }
+
+    private static DishPagedListDto GetDishPagedList(IQueryable<Dish> dishes, IEnumerable<DishDto> dishPage, int page)
+    {
+        var pageCount = (int)Math.Ceiling(dishes.Count() * 1.0 / PageSize);
+        var dishCount = page < pageCount ? PageSize : Math.Max(0, dishes.Count() - PageSize * (page - 1));
+        if (dishCount == 0) throw new NotFoundException();
+
+        return new DishPagedListDto(
+            dishPage,
+            new PageInfoModel(
+                dishCount,
+                pageCount,
+                page
+            )
+        );
     }
 
     public async Task<DishDto> GetDishDto(Dish dish)
@@ -41,7 +119,7 @@ public class DishServices : IDishService
             dish.Price,
             dish.Image,
             dish.Vegetarian,
-            reviews.Average(r => r.Rating),
+            reviews.IsNullOrEmpty() ? null : reviews.Average(r => r.Rating),
             dish.Category
         );
     }
@@ -98,67 +176,6 @@ public class DishServices : IDishService
             Dish = dish,
             User = user,
             Rating = rating
-        };
-    }
-
-    private DishPagedListDto GetDishPagedList(IQueryable<Dish> dishes, IEnumerable<DishDto> dishPage, int page)
-    {
-        return new DishPagedListDto(
-            dishPage,
-            new PageInfoModel(
-                PageSize,//todo it can be less than pagesize
-                (int)Math.Ceiling(dishes.Count() * 1.0 / PageSize),
-                page
-            )
-        );
-    }
-
-    private async Task<IEnumerable<DishDto>> GetDishPage(IQueryable<Dish> dishes, int page)
-    {
-        var dishesPageCount = GetDishPageCount(dishes, page);
-
-        return await dishes
-            .Skip((page - 1) * PageSize)
-            .Take(dishesPageCount)
-            .Select(x =>
-                new DishDto(x.Id, x.Name, x.Description, x.Price, x.Image, x.Vegetarian,
-                    x.Reviews.Average(r => r.Rating), x.Category)
-            )
-            .ToListAsync();
-    }
-
-    private int GetDishPageCount(IQueryable<Dish> dishes, int page)
-    {
-        if (dishes.Count() < PageSize * page)
-        {
-            return Math.Max(0, dishes.Count() - PageSize * (page - 1));
-        }
-
-        return PageSize;
-    }
-
-    private IQueryable<Dish> GetVegetarian(IQueryable<Dish> dishes, bool available = true)
-    {
-        return available ? dishes.Where(x => x.Vegetarian) : dishes;
-    }
-
-    private IQueryable<Dish> GetCategory(IQueryable<Dish> dishes, DishCategory[]? category = null)
-    {
-        return category != null ? dishes.Where(x => category.Contains(x.Category)) : dishes;
-    }
-
-    private IQueryable<Dish> Sort(IQueryable<Dish> dishes, DishSorting? sorting = null)
-    {
-        return sorting switch
-        {
-            DishSorting.NameAsc => dishes.OrderBy(x => x.Name),
-            DishSorting.NameDesc => dishes.OrderByDescending(x => x.Name),
-            DishSorting.PriceAsc => dishes.OrderBy(x => x.Price),
-            DishSorting.PriceDesc => dishes.OrderByDescending(x => x.Price),
-            DishSorting.RatingAsc => dishes.OrderBy(x => x.Reviews.Average(r => r.Rating)),
-            DishSorting.RatingDesc => dishes.OrderByDescending(x => x.Reviews.Average(r => r.Rating)),
-            null => dishes,
-            _ => throw new ArgumentOutOfRangeException(nameof(sorting), sorting, null)
         };
     }
 }

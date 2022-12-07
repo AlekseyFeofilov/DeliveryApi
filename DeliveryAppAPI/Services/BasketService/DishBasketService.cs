@@ -1,6 +1,7 @@
 using DeliveryAppAPI.DbContexts;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
+using DeliveryAppAPI.Services.RepositoryService;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryAppAPI.Services.BasketService;
@@ -8,25 +9,31 @@ namespace DeliveryAppAPI.Services.BasketService;
 public class DishBasketService : IDishBasketService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IRepositoryService _repositoryService;
 
-    public DishBasketService(ApplicationDbContext context) //todo квартс библиотека для фоновых процессов
+    public DishBasketService(ApplicationDbContext context, IRepositoryService repositoryService) //todo квартс библиотека для фоновых процессов
     {
         _context = context;
+        _repositoryService = repositoryService;
     }
 
     public async Task<IEnumerable<DishBasketDto>> GetCart(Guid userId)
     {
         return await _context.DishBaskets
             .Where(x => x.User != null && x.User.Id == userId)
-            .Select(dishBasket =>
-                new DishBasketDto(dishBasket.Id, dishBasket.Dish.Name, dishBasket.Dish.Price, dishBasket.Amount,
-                    dishBasket.Dish.Image))
+            .Select(dishBasket => new DishBasketDto(
+                dishBasket.Id,
+                dishBasket.Dish.Name,
+                dishBasket.Dish.Price,
+                dishBasket.Amount, //todo
+                dishBasket.Dish.Image
+            ))
             .ToListAsync();
     }
 
     public async Task AddBasket(Dish dish, User user)
     {
-        var dishBasket = await GetDishBasket(dish.Id);
+        var dishBasket = await _repositoryService.GetDishBasket(dish.Id, user.Id);
         AddDishBasket(dishBasket, dish, user);
     }
 
@@ -60,7 +67,7 @@ public class DishBasketService : IDishBasketService
                 User = user
             });
         }
-        
+
         _context.SaveChangesAsync();
     }
 }
