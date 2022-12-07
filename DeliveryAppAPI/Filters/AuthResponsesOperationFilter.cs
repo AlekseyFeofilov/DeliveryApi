@@ -1,8 +1,9 @@
+using DeliveryAppAPI.Configurations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace DeliveryAppAPI;
+namespace DeliveryAppAPI.Filters;
 
 /// <inheritdoc />
 // ReSharper disable once ClassNeverInstantiated.Global
@@ -26,7 +27,7 @@ public class AuthResponsesOperationFilter : IOperationFilter
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = "bearer"
+                                Id = AppConfigurations.TokenType
                             }
                         },
                         Array.Empty<string>()

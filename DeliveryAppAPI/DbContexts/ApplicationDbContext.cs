@@ -18,6 +18,6 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().HasIndex(x => x.Email).IsUnique(); //todo: maybe do it in attribute?
+        modelBuilder.Entity<User>().HasIndex(x => x.Email).IsUnique();
     }
 }

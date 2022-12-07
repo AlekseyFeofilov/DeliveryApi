@@ -24,8 +24,7 @@ public class DishBasketDto
     public int Amount { get; }
     [JsonPropertyName("image")] 
     public string? Image { get; }
-    
-    
+
     public DishBasketDto(Guid id, string name, double price, int amount, string? image)
     {
         Id = id;

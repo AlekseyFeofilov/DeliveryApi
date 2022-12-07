@@ -3,13 +3,15 @@ using DeliveryAppAPI.Models.Enums;
 
 namespace DeliveryAppAPI.Models.DbSets;
 
-public class Dish//todo automapper
+public class Dish
 {
     public Guid Id { get; set; }
     [MinLength(1)]
+    [Required]
     public string Name { get; set; }
     public string? Description { get; set; }
     [Range(0, double.MaxValue)]
+    [Required]
     public double Price { get; set; }
     [Url]
     public string? Image { get; set; }

@@ -1,3 +1,4 @@
+using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.Exceptions;
 using DeliveryAppAPI.Models.Response;
 using Newtonsoft.Json;
@@ -18,13 +19,14 @@ public class ErrorHandlingMiddleware : IMiddleware
         }
         catch (NotFoundException)
         {
-            context.Response.StatusCode = StatusCodes.Status404NotFound;   
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
         }
         catch (Exception exception)
         {
-            context.Response.ContentType = "application/json"; 
+            Console.Write(exception);
+            context.Response.ContentType = AppConfigurations.ResponseContentType;
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            var response = JsonConvert.SerializeObject(new Response("Unexpected error", exception.ToString()));
+            var response = JsonConvert.SerializeObject(new Response(ErrorMessage.UnexpectedError, exception.Message));
 
             await context.Response.WriteAsync(response);
         }

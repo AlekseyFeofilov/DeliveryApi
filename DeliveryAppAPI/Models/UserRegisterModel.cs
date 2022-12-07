@@ -23,7 +23,7 @@ public class UserRegisterModel
     public string? Address { get; }
     [JsonPropertyName("birthDate")]
     [DateRange(100 * 365, 0, true)]
-    public DateTime? BirthDate { get; }  //todo date validation (for all project too)
+    public DateTime? BirthDate { get; } 
     [JsonPropertyName("gender")]
     [Required]
     public Gender Gender { get; }

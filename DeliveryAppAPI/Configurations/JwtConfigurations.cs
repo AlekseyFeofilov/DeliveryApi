@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace DeliveryAppAPI;
+namespace DeliveryAppAPI.Configurations;
 
 public static class JwtConfigurations
 {

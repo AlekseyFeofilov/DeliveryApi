@@ -28,12 +28,12 @@ public class DateRangeAttribute : ValidationAttribute
 
         if (minDate.Date > date.Date)
         {
-            ErrorMessage = $"Date can't be earlier than {minDate:dd/MM/yyyy}";
+            ErrorMessage = string.Format(Configurations.ErrorMessage.TooEarlyDate, $"{minDate:dd/MM/yyyy}");
             result = false;
         }
         else if (maxDate.Date < date.Date)
         {
-            ErrorMessage = $"Date can't be later than {maxDate:dd/MM/yyyy}";
+            ErrorMessage = string.Format(Configurations.ErrorMessage.TooLateDate, $"{maxDate:dd/MM/yyyy}");
             result = false;
         }
 
