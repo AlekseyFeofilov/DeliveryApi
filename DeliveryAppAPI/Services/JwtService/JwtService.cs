@@ -48,7 +48,8 @@ public class JwtService : IJwtService
         var claims = new List<Claim>
         {
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.NameIdentifier, user.Id.ToString())//todo
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Hash, Guid.NewGuid().ToString())
         };
 
         var claimsIdentity =

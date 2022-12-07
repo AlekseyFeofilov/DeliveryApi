@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.Exceptions;
 using DeliveryAppAPI.Models;
@@ -44,6 +45,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register(UserRegisterModel model)
     {
+        model.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
         if (await _userService.IsRegistered(model.Email)) return BadRequest(ErrorMessage.RegisteredEmail);
         await _userService.Register(model);
         
@@ -62,6 +64,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login(LoginCredentials credentials)
     {
+        credentials.Password = BCrypt.Net.BCrypt.HashPassword(credentials.Password);
         return await GetToken(credentials);
     }
 
@@ -77,10 +80,8 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Logout()
     {
-        string? authHeader = Request.Headers[StringConstance.Authorization];
-        if (authHeader == null) throw new UnauthorizedException();
-
-        await _redis.SetRecordAsync(authHeader, "sdfsdfdsf",//todo 
+        var tokenId = User.FindFirst(ClaimTypes.Hash)!.Value;
+        await _redis.SetRecordAsync(tokenId, DateTime.Now.Date,
             new TimeSpan(0, JwtConfigurations.Lifetime, 0),
             new TimeSpan(0, JwtConfigurations.Lifetime, 0));
         return Ok();
