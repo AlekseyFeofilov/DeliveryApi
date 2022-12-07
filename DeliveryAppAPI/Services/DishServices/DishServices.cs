@@ -60,11 +60,6 @@ public class DishServices : IDishService
         SetReview(await GetReview(dish, user), dish, user, rating);
     }
 
-    public async Task<Dish?> GetDish(Guid id)
-    {
-        return await _context.Dishes.SingleOrDefaultAsync(x => x.Id == id);
-    }
-
     private async Task<Review?> GetReview(Dish dish, User user)
     {
         return await _context.Reviews

@@ -54,13 +54,6 @@ public class OrderService : IOrderService
         _context.SaveChangesAsync();
     }
 
-    public async Task<Order?> GetOrder(Guid id)
-    {
-        return await _context.Orders
-            .Include(x => x.DishBaskets)
-            .SingleOrDefaultAsync(x => x.Id == id);
-    }
-
     private async Task<ICollection<DishBasketDto>> GetOrderDishBaskets(Order order)
     {
         return await _context.DishBaskets

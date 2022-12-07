@@ -9,5 +9,4 @@ public interface IOrderService
     Task<IEnumerable<OrderInfoDto>> GetAllOrders(Guid userId);
     Task<bool> CreateOrder(OrderCreateDto orderCreateDto, User user);
     void ConfirmOrderDelivery(Order order);
-    Task<Order?> GetOrder(Guid id);
 }

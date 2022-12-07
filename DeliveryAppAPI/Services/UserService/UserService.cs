@@ -53,20 +53,6 @@ public class UserService : IUserService //todo separate service into a few inter
         _context.SaveChangesAsync();
     }
 
-    public async Task<User?> GetUser(Guid id)
-    {
-        return await _context.Users.SingleOrDefaultAsync(x => x.Id == id);
-    }
-
-    public async Task<User> GetUser(HttpRequest request)
-    {
-        var userId = _jwtClaimService.GetIdClaim(request);
-        var user = await GetUser(userId);
-        
-        if (user == null) throw new UnauthorizedException();
-        return user;
-    }
-
     public async Task<bool> IsRegistered(string email)
     {
         return await _context.Users.SingleOrDefaultAsync(x => x.Email == email) != null;

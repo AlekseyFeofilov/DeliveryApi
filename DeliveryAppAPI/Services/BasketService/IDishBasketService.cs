@@ -8,5 +8,4 @@ public interface IDishBasketService
     Task<IEnumerable<DishBasketDto>> GetCart(Guid userId);
     Task AddBasket(Dish dish, User user);
     void DeleteBasket(DishBasket dishBasket, bool increase = false);
-    Task<DishBasket?> GetDishBasket(Guid dishId, Guid userId);
 }

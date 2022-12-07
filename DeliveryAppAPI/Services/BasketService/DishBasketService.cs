@@ -44,16 +44,6 @@ public class DishBasketService : IDishBasketService
         _context.SaveChangesAsync();
     }
 
-    public async Task<DishBasket?> GetDishBasket(Guid dishId, Guid userId)
-    {
-        return await _context.DishBaskets
-            .SingleOrDefaultAsync(x =>
-                x.User != null
-                && x.Dish.Id == dishId
-                && x.User.Id == userId
-            );
-    }
-
     private void AddDishBasket(DishBasket? dishBasket, Dish dish, User user)
     {
         if (dishBasket != null)
@@ -72,15 +62,5 @@ public class DishBasketService : IDishBasketService
         }
         
         _context.SaveChangesAsync();
-    }
-
-    private async Task<DishBasket?> GetDishBasket(Guid dishId)
-    {
-        return await _context.DishBaskets
-            .SingleOrDefaultAsync(x =>
-                x.User != null
-                && x.User.Id == x.Id
-                && x.Dish.Id == dishId
-            );
     }
 }

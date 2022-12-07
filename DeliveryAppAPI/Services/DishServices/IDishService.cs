@@ -8,7 +8,6 @@ public interface IDishService
 {
     Task<DishPagedListDto> GetAllDishes(DishCategory[]? category, DishSorting? sorting, int? page, bool vegetarian);
     Task<DishDto> GetDishDto(Dish dish);
-    Task<Dish?> GetDish(Guid id);
     bool CheckReviewAccess(Guid dishId, Guid userId);
     Task SetReview(Dish dish, User user, int rating);
 }
