@@ -14,7 +14,8 @@ public class UserRegisterModel
     [MinLength(6)]
     [Required]
     [JsonPropertyName("password")]
-    public string Password { get; }
+    public string Password { get; set; }
+
     [EmailAddress]
     [Required]
     [JsonPropertyName("email")]

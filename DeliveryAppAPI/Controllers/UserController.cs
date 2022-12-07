@@ -44,6 +44,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register(UserRegisterModel model)
     {
+        model.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
         if (await _userService.IsRegistered(model.Email)) return BadRequest(ErrorMessage.RegisteredEmail);
         await _userService.Register(model);
         
@@ -62,6 +63,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login(LoginCredentials credentials)
     {
+        credentials.Password = BCrypt.Net.BCrypt.HashPassword(credentials.Password);
         return await GetToken(credentials);
     }
 

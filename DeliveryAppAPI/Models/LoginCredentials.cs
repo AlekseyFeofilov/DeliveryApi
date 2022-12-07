@@ -13,7 +13,7 @@ public class LoginCredentials
     [JsonPropertyName("password")]
     [Required]
     [MinLength(1)]
-    public string Password { get; }
+    public string Password { get; set; }
 
     public LoginCredentials(string email, string password)
     {
