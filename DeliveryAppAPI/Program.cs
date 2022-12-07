@@ -1,69 +1,26 @@
-using System.Reflection;
-using DeliveryAppAPI;
+using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.DbContexts;
 using DeliveryAppAPI.Middlewares;
-using DeliveryAppAPI.Services.BasketService;
-using DeliveryAppAPI.Services.DishServices;
-using DeliveryAppAPI.Services.JwtService;
-using DeliveryAppAPI.Services.OrderService;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using DeliveryAppAPI.Services.UserService;
+using DeliveryAppAPI.ServiceExtensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDefaultService();
+builder.Services.AddSwaggerServices();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
-    });
-    options.OperationFilter<AuthResponsesOperationFilter>();
-});
+builder.Services.AddLogicServices();
+builder.Services.AddHelperServices();
 
-builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IJwtClaimService, JwtService>();
-builder.Services.AddScoped<IDishBasketService, DishBasketService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IDishService, DishServices>();
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddTransient<ErrorHandlingMiddleware>();
+builder.AddRedisServices();
 
-//JWT
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = JwtConfigurations.Issuer,
-            ValidateAudience = true,
-            ValidAudience = JwtConfigurations.Audience,
-            ValidateLifetime = true,
-            IssuerSigningKey = JwtConfigurations.GetSymmetricSecurityKey(),
-            ValidateIssuerSigningKey = true
-        };
-    });
+builder.Services.AddAuthorizationServices();
+builder.Services.AddAuthenticationServices();
 
 //DbContext 
-var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+var connection = builder.Configuration.GetConnectionString(ConnectionStrings.DefaultConnection);
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connection));
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); //todo solve more smart
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var app = builder.Build();
 
