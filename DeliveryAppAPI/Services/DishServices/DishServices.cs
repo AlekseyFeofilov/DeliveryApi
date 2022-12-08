@@ -62,24 +62,17 @@ public class DishServices : IDishService
         };
     }
 
-    private static async Task<IEnumerable<DishDto>> GetDishPage(IQueryable<Dish> dishes, int page)
+    private async Task<IEnumerable<DishDto>> GetDishPage(IQueryable<Dish> dishes, int page)
     {
         var dishesPageCount = GetDishPageCount(dishes, page);
 
-        return await dishes
+        var dishes1 = await dishes
             .Skip((page - 1) * PageSize)
             .Take(dishesPageCount)
-            .Select(x => new DishDto(
-                x.Id,
-                x.Name,
-                x.Description,
-                x.Price,
-                x.Image,
-                x.Vegetarian,
-                x.Reviews.Average(r => r.Rating),
-                x.Category
-            ))
+            .Include(x => x.Reviews)
             .ToListAsync();
+
+        return dishes1.Select(x => _mapper.Map<DishDto>(x));
     }
 
     private static int GetDishPageCount(IQueryable<Dish> dishes, int page)
@@ -110,18 +103,8 @@ public class DishServices : IDishService
 
     public async Task<DishDto> GetDishDto(Dish dish)
     {
-        var reviews = await GetReviews(dish.Id);
-
-        return new DishDto(
-            dish.Id,
-            dish.Name,
-            dish.Description,
-            dish.Price,
-            dish.Image,
-            dish.Vegetarian,
-            reviews.IsNullOrEmpty() ? null : reviews.Average(r => r.Rating),
-            dish.Category
-        );
+        var _ = await GetReviews(dish.Id);
+        return _mapper.Map<DishDto>(dish);
     }
 
     public bool CheckReviewAccess(Guid dishId, Guid userId)

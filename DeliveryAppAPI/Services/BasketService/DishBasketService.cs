@@ -1,3 +1,4 @@
+using AutoMapper;
 using DeliveryAppAPI.DbContexts;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
@@ -10,25 +11,24 @@ public class DishBasketService : IDishBasketService
 {
     private readonly ApplicationDbContext _context;
     private readonly IRepositoryService _repositoryService;
+    private readonly IMapper _mapper;
 
-    public DishBasketService(ApplicationDbContext context, IRepositoryService repositoryService) //todo квартс библиотека для фоновых процессов
+    public DishBasketService(ApplicationDbContext context, IRepositoryService repositoryService, IMapper mapper)
     {
         _context = context;
         _repositoryService = repositoryService;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<DishBasketDto>> GetCart(Guid userId)
     {
-        return await _context.DishBaskets
+        var dishBaskets = await _context.DishBaskets
             .Where(x => x.User != null && x.User.Id == userId)
-            .Select(dishBasket => new DishBasketDto(
-                dishBasket.Id,
-                dishBasket.Dish.Name,
-                dishBasket.Dish.Price,
-                dishBasket.Amount, //todo
-                dishBasket.Dish.Image
-            ))
+            .Include(x => x.Dish)
+            .ThenInclude(x => x.Reviews)
             .ToListAsync();
+
+        return dishBaskets.Select(x => _mapper.Map<DishBasketDto>(x));
     }
 
     public async Task AddBasket(Dish dish, User user)

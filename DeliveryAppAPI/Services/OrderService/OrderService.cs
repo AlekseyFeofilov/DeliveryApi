@@ -58,12 +58,7 @@ public class OrderService : IOrderService
     {
         return await _context.DishBaskets
             .Where(x => order.DishBaskets.Contains(x))
-            .Select(x => new DishBasketDto(//todo
-                x.Id, 
-                x.Dish.Name, 
-                x.Dish.Price, 
-                x.Amount, 
-                x.Dish.Image))
+            .Select(x => _mapper.Map<DishBasketDto>(x))
             .ToListAsync();
     }
 

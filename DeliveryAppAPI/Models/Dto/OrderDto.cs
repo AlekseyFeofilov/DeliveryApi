@@ -7,26 +7,26 @@ namespace DeliveryAppAPI.Models.Dto;
 
 public class OrderDto
 {
-    [JsonPropertyName("id")] public Guid Id { get; }
+    [JsonPropertyName("id")] public Guid Id { get; set; }
 
     [JsonPropertyName("deliveryTime")]
     [Required]
     [DateRange(0)]
-    public DateTime DeliveryTime { get; }
+    public DateTime DeliveryTime { get; set; }
 
     [JsonPropertyName("orderTime")]
     [Required]
     [DateRange(laterThanTodayBy: 0)]
-    public DateTime OrderTime { get; }
+    public DateTime OrderTime { get; set; }
 
     [JsonPropertyName("status")]
     [Required]
-    public OrderStatus Status { get; }
+    public OrderStatus Status { get; set; }
 
     [JsonPropertyName("price")]
     [Required]
     [Range(0, double.MaxValue)]
-    public double Price { get; }
+    public double Price { get; set; }
 
     [JsonPropertyName("dishes")]
     [Required]
@@ -35,17 +35,5 @@ public class OrderDto
     [JsonPropertyName("address")]
     [Required]
     [MinLength(1)]
-    public string Address { get; }
-
-    public OrderDto(Guid id, DateTime deliveryTime, DateTime orderTime, OrderStatus status,
-        double price /*, IEnumerable<DishBasketDto> dishBaskets*/, string address)
-    {
-        Id = id;
-        DeliveryTime = deliveryTime;
-        OrderTime = orderTime;
-        Status = status;
-        Price = price;
-        //DishBaskets = dishBaskets;
-        Address = address;
-    }
+    public string Address { get; set; }
 }
