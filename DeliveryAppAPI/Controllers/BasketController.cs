@@ -29,7 +29,7 @@ public class BasketController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy)]
+    [HttpGet, Authorize(AppConfigurations.ActiveTokenPolicy)]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(IEnumerable<DishBasketDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -46,7 +46,7 @@ public class BasketController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("dish/{dishId:guid}")]
+    [HttpPost, Authorize(AppConfigurations.ActiveTokenPolicy), Route("dish/{dishId:guid}")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddBasket(Guid dishId)
@@ -65,7 +65,7 @@ public class BasketController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpDelete, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("dish/{dishId:guid}")]
+    [HttpDelete, Authorize(AppConfigurations.ActiveTokenPolicy), Route("dish/{dishId:guid}")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase = false)

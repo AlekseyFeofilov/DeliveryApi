@@ -63,7 +63,7 @@ public class DishController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/rating/check")]
+    [HttpGet, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/rating/check")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -82,7 +82,7 @@ public class DishController : ControllerBase
     /// <response code="403">Forbidden</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/rating")]
+    [HttpPost, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/rating")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SetReview(Guid id, [Range(1, 10)] int ratingScore)

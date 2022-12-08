@@ -29,7 +29,7 @@ public class OrderController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}")]
+    [HttpGet, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -64,7 +64,7 @@ public class OrderController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy)]
+    [HttpPost, Authorize(AppConfigurations.ActiveTokenPolicy)]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
@@ -83,7 +83,7 @@ public class OrderController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/status")]
+    [HttpPost, Authorize(AppConfigurations.ActiveTokenPolicy), Route("{id:guid}/status")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ConfirmOrderDelivery(Guid id)
