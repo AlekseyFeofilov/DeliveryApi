@@ -24,7 +24,7 @@ public class ActiveTokenHandler : AuthorizationHandler<ActiveTokenRequirement>
 
         if (authHeader == null) throw new UnauthorizedException();
 
-        if (await _redis.GetRecordAsync<string>(AppConfigurations.InstanceName + authHeader) == null)
+        if (await _redis.GetRecordAsync(AppConfigurations.InstanceName + authHeader) == null)
         {
             context.Succeed(requirement);
         }

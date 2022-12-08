@@ -24,21 +24,18 @@ public static class CacheHelper
         await cache.SetStringAsync(recordId, jsonData, options);
     }
 
-    public static async Task<string?> GetRecordAsync<T>(this IDistributedCache cache,//todo: refactor 
-        string recordId)
+    public static async Task<string?> GetRecordAsync(this IDistributedCache _, string recordId)
     {
          var configurationOptions = new ConfigurationOptions
          {
              EndPoints = { ConnectionStrings.Redis }
          };
+         
          var serviceProvider = new ServiceCollection()
              .AddStackExchangeRedisCache(options => options.ConfigurationOptions = configurationOptions)
              .BuildServiceProvider();
         
-        var cache1 = serviceProvider.GetRequiredService<IDistributedCache>();
-        
-        return await cache1.GetStringAsync(recordId);
-        //var jsonData = await cache1.GetStringAsync(recordId);
-        //return jsonData is null ? default : JsonSerializer.Deserialize<T>(jsonData);
+        var cache = serviceProvider.GetRequiredService<IDistributedCache>();
+        return await cache.GetStringAsync(recordId);
     }
 }
