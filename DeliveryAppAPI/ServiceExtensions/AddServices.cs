@@ -80,7 +80,6 @@ public static class AddServices
     
     public static void AddAuthorizationServices(this IServiceCollection services)
     {
-        services.AddHttpContextAccessor();
         services.AddSingleton<IAuthorizationHandler, ActiveTokenHandler>();
         
         services.AddAuthorization();

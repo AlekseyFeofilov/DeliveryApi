@@ -3,7 +3,7 @@ using DeliveryAppAPI.Configurations;
 using Microsoft.Extensions.Caching.Distributed;
 using StackExchange.Redis;
 
-namespace DeliveryAppAPI;
+namespace DeliveryAppAPI.Helpers;
 
 public static class CacheHelper
 {

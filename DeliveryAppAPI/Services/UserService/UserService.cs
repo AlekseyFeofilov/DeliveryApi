@@ -1,5 +1,6 @@
 using AutoMapper;
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Helpers;
 using DeliveryAppAPI.Models;
 using DeliveryAppAPI.Models.DbSets;
 using DeliveryAppAPI.Models.Dto;
@@ -20,7 +21,11 @@ public class UserService : IUserService
 
     public async Task Register(UserRegisterModel model)
     {
-        _context.Users.Add(_mapper.Map<User>(model));
+        var password = model.Password;
+        model.Password = HashHelper.HashPassword(model.Password);
+        await _context.Users.AddAsync(_mapper.Map<User>(model));
+
+        model.Password = password;
         await _context.SaveChangesAsync();
     }
 

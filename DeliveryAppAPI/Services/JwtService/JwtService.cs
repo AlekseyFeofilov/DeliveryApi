@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using DeliveryAppAPI.Configurations;
 using DeliveryAppAPI.DbContexts;
+using DeliveryAppAPI.Helpers;
 using DeliveryAppAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,10 +38,9 @@ public class JwtService : IJwtService
     {
         var user = await _context.Users.FirstOrDefaultAsync(x =>
             x.Email == credentials.Email
-            && x.Password == credentials.Password
         );
 
-        if (user == null)
+        if (user == null || !HashHelper.ValidatePassword(credentials.Password, user.Password))
         {
             return null;
         }

@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using DeliveryAppAPI.Configurations;
-using DeliveryAppAPI.Exceptions;
+using DeliveryAppAPI.Helpers;
 using DeliveryAppAPI.Models;
 using DeliveryAppAPI.Models.Dto;
 using DeliveryAppAPI.Models.Response;
@@ -45,7 +45,6 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register(UserRegisterModel model)
     {
-        model.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
         if (await _userService.IsRegistered(model.Email)) return BadRequest(ErrorMessage.RegisteredEmail);
         await _userService.Register(model);
         
@@ -64,7 +63,6 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login(LoginCredentials credentials)
     {
-        credentials.Password = BCrypt.Net.BCrypt.HashPassword(credentials.Password);
         return await GetToken(credentials);
     }
 
@@ -75,7 +73,7 @@ public class UserController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPost, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("logout")]
+    [HttpPost, Authorize(AppConfigurations.ActiveTokenPolicy), Route("logout")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Logout()
@@ -93,7 +91,7 @@ public class UserController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpGet, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("profile")]
+    [HttpGet, Authorize(AppConfigurations.ActiveTokenPolicy), Route("profile")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
@@ -109,7 +107,7 @@ public class UserController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="500">InternalServerError</response>
-    [HttpPut, Authorize, Authorize(AppConfigurations.ActiveTokenPolicy), Route("profile")]
+    [HttpPut, Authorize(AppConfigurations.ActiveTokenPolicy), Route("profile")]
     [Produces(AppConfigurations.ResponseContentType)]
     [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> EditProfileInfo(UserEditModel model)
